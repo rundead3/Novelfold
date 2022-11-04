@@ -1,14 +1,13 @@
 
 """(x,y,z) = max(x,y,z) - min(x,y,z)"""
 import random
-
+import qdpy as qd
 import numpy as np
 import math
 import matplotlib.pyplot as plt
 from Bio.PDB import *
 from Bio.PDB.PDBParser import PDBParser
-"import map_elites.cvt as cvt_map_elites"
-"archive = cvt_map_elites.compute(2, 5, box, n_niches=10000, max_evals=1e6, log_file=open('cvt_arm.dat', 'w'), params=px)"
+
 
 import os
 
@@ -17,8 +16,15 @@ import subprocess
 def fitness_function():
     """COMPUTE BLOBS"""
     os.chdir("C:\\Users\\42077\\Omegaforl\\blobulator\\blobulator-main\\")
-    subprocess.run("mkdir .\\Batch\\Outputs", shell=True)
-    subprocess.run("python compute_blobs.py --fasta C:\\Users\\42077\\Omegafold\\randseq.txt --cutoff 0.4 --minBlob 4 --oname .\\Batch\\Outputs\\", shell=True)
+    subprocess.run("python compute_blobs.py --fasta C:\\Users\\42077\\Omegafold\\randseq.txt --cutoff 0.4 --minBlob 4 --oname .\\Batch\\Outputs\\", shell=True, stdout=subprocess.DEVNULL)
+
+    "CALCULATE NICHES"
+    nicheCoords = []
+    for i in range(0, population):
+        nicheCoords.append(init_niches(i))
+
+    print(nicheCoords)
+
 
     "START OMEGAFOLD"
     os.chdir("C:\\Users\\42077\\OmegaFold")
@@ -32,10 +38,8 @@ def fitness_function():
     "generate protein sequences"
     bestRes = []
     bestFit = 0
-    population = 20
-
     "get structure data"
-    for i in range(1, population):
+    for i in range(0, population):
         structure = parser.get_structure(str(i)+"th chain", "C:\\Users\\42077\\Omegaforl\\res1\\"+str(i)+"th chain.pdb")
         for model in structure:
             for chain in model:
@@ -58,7 +62,7 @@ def fitness_function():
 
     fasta = open("C:\\Users\\42077\\Omegafold\\randseq.txt", "w")
 
-    for i in range(1,population) :
+    for i in range(0, population):
         fasta.write(">"+str(i)+"th chain")
         fasta.write("\n")
 
@@ -121,8 +125,26 @@ def triToFasta(res):
             res1.append('V')
     return res1
 
+def init_niches(i):
+    csv_file = open("C:\\Users\\42077\\Omegaforl\\blobulator\\blobulator-main\\Batch\\Outputs\\"+str(i)+"th.csv", "r")
+    csv_list = csv_file.readlines()
+    csv_file.close()
 
+    csv_list.pop(0)
+    nichx = float(0)
+    nichy = float(0)
+    for i in csv_list:
+        nichx+=float(i.split(',')[5])
+        nichy+=float(i.split(',')[6])
+    return nichx/len(csv_list), nichy/len(csv_list)
+
+
+
+population = 20
 fitness=0
+genN = 0
 while fitness < 100:
     fitness = fitness_function()
+    genN = genN+1
+    print(genN)
 
