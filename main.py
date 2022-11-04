@@ -6,7 +6,6 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 from Bio.PDB import *
-from qdpy import *
 from Bio.PDB.PDBParser import PDBParser
 "import map_elites.cvt as cvt_map_elites"
 "archive = cvt_map_elites.compute(2, 5, box, n_niches=10000, max_evals=1e6, log_file=open('cvt_arm.dat', 'w'), params=px)"
@@ -16,46 +15,69 @@ import os
 import subprocess
 
 def fitness_function():
-    fitness = 0
+    """COMPUTE BLOBS"""
+    os.chdir("C:\\Users\\42077\\Omegaforl\\blobulator\\blobulator-main\\")
+    subprocess.run("mkdir .\\Batch\\Outputs", shell=True)
+    subprocess.run("python compute_blobs.py --fasta C:\\Users\\42077\\Omegafold\\randseq.txt --cutoff 0.4 --minBlob 4 --oname .\\Batch\\Outputs\\", shell=True)
+
     "START OMEGAFOLD"
-
-    os.chdir("C:\\Omegafold\\")
-    subprocess.run("omegafold fasta.txt C:\\Omegafold --num_cycle 1", shell=True)
-
-
+    os.chdir("C:\\Users\\42077\\OmegaFold")
+    subprocess.run("omegafold C:\\Users\\42077\\Omegafold\\randseq.txt C:\\Users\\42077\\Omegaforl\\res1 --num_cycle 1", shell=True)
     "END OMEGAFOLD"
 
     # Load PDB file
     parser = PDBParser()
-    structure = parser.get_structure('1st chain' ,'C:\\Omegafold\\1st chain.pdb')
-
-    for model in structure:
-        for chain in model:
-            a = 0
-            b = 0
-            for residue in chain:
-
-                for atom in residue:
-
-                    b += 1
-                    a += atom.bfactor
-            fitness = ( a / b)
-            print(fitness)
 
 
     "generate protein sequences"
+    bestRes = []
+    bestFit = 0
+    population = 20
 
-    # Load PDB file
-    parser = PDBParser()
-    structure = parser.get_structure('1st chain', 'C:\\Omegafold\\1st chain.pdb')
-    res=[]
-    for model in structure:
-        for chain in model:
-            for residue in chain:
-                res.append(residue.get_resname())
+    "get structure data"
+    for i in range(1, population):
+        structure = parser.get_structure(str(i)+"th chain", "C:\\Users\\42077\\Omegaforl\\res1\\"+str(i)+"th chain.pdb")
+        for model in structure:
+            for chain in model:
+                a = 0
+                b = 0
+                res = []
+                for residue in chain:
+                    res.append(residue.get_resname())
+                    for atom in residue:
+                        b += 1
+                        a += atom.bfactor
+                fitness = ( a / b)
+                if (fitness>bestFit):
+                    bestFit = fitness
+                    bestRes = res
+                print(fitness)
 
-    "convert residues to one letter code"
-    res1 =[]
+    "convert residues into fasta format"
+    res1 = triToFasta(bestRes)
+
+    fasta = open("C:\\Users\\42077\\Omegafold\\randseq.txt", "w")
+
+    for i in range(1,population) :
+        fasta.write(">"+str(i)+"th chain")
+        fasta.write("\n")
+
+        """mutation of residues"""
+
+        for i in res1:
+            """mutation of residues 95% of the time we put a normal residue but 5% of the time we put a random residue"""
+            if random.random() < 0.95:
+                fasta.write(i)
+            else:
+                fasta.write(random.choice(['A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V']))
+        fasta.write("\n")
+
+    fasta.close()
+    return fitness
+
+def triToFasta(res):
+    "convert residues to one-letter code"
+    res1 = []
     for i in res:
         if i == 'ALA':
             res1.append('A')
@@ -97,26 +119,10 @@ def fitness_function():
             res1.append('Y')
         if i == 'VAL':
             res1.append('V')
+    return res1
 
-    "convert residues into fasta format"
-    fasta = open("C:\\Omegafold\\fasta.txt", "w")
-    fasta.write(">1st chain")
-    fasta.write("\n")
-
-
-    """mutation of residues"""
-
-    for i in res1:
-        """mutation of residues 90% of the time we put a normal residue but 10% of the time we put a random residue"""
-        if random.random() < 0.9:
-            fasta.write(i)
-        else:
-            fasta.write(random.choice(['A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V']))
-
-    fasta.close()
-    return fitness
 
 fitness=0
-while fitness < 35:
-
+while fitness < 100:
     fitness = fitness_function()
+
