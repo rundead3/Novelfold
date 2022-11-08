@@ -1,15 +1,12 @@
 """(x,y,z) = max(x,y,z) - min(x,y,z)"""
 import random
-import qdpy as qd
 import numpy as np
 import math
 import matplotlib.pyplot as plt
-from Bio.PDB import *
 from Bio.PDB.PDBParser import PDBParser
 import os
-from qdpy import algorithms, containers, plots
-from qdpy.base import ParallelismManager
 import subprocess
+from chainLogic import chainLogic
 
 
 def init_population(popSize, length):
@@ -39,8 +36,6 @@ def blobulate():
     subprocess.run(
         "python compute_blobs.py --fasta C:\\Users\\42077\\Omegafold\\randseq.txt --cutoff 0.4 --minBlob 4 --oname .\\Batch\\Outputs\\",
         shell=True, stdout=subprocess.DEVNULL)
-    for i in range(0, population):
-        init_niches(i)
 
 
 def fold():
@@ -52,42 +47,12 @@ def fold():
 
 
 def fitness_function():
-    # Load PDB file
-    parser = PDBParser()
 
-    ress = []
-    fits = []
-    bestFit = 0
-    sphereDia = []
-    "get structure data"
+    # Create individuals
+    chainList = []
     for i in range(0, population):
-        structure = parser.get_structure(str(i) + "th chain",
-                                         "C:\\Users\\42077\\Omegaforl\\res1\\" + str(i) + "th chain.pdb")
-        for model in structure:
-            for chain in model:
-                a = 0
-                b = 0
-                res = []
-                coords = []
-                for residue in chain:
-                    res.append(residue.get_resname())
-                    for atom in residue:
-                        b += 1
-                        a += atom.bfactor
-                        coords.append(atom.get_coord())
-
-                fitness = (a / b)
-                fits.append(fitness)
-                if fitness > fits[bestFit]:
-                    bestFit = i
-
-                ress.append(res)
-
-                sphereDia.append(get_bounding_sphere(coords))
-
-    print(fits[bestFit])
-    print(fits)
-    print(sphereDia)
+        chainList.append(chainLogic(i))
+        print(chainList[i])
 
 
     "convert residues into fasta format"
@@ -111,11 +76,10 @@ def fitness_function():
 def get_bounding_sphere(coords):
     maxDist = 0
 
-    for i in range(0, len(coords)):
-        for j in range(i, len(coords)):
+    for i in range(0, len(coords), int(len(coords)*sphereResolution)):
+        for j in range(i, len(coords), int(len(coords)*sphereResolution)):
             maxDist = max(maxDist, math.dist(coords[i], coords[j]))
 
-    print(maxDist)
     return maxDist
 
 
@@ -178,21 +142,7 @@ def tri_to_fasta(res):
     return res1
 
 
-def init_niches(i):
-    csv_file = open("C:\\Users\\42077\\Omegaforl\\blobulator\\blobulator-main\\Batch\\Outputs\\" + str(i) + "th.csv",
-                    "r")
-    csv_list = csv_file.readlines()
-    csv_file.close()
 
-    csv_list.pop(0)
-    nichx = float(0)
-    nichy = float(0)
-    for i in csv_list:
-        nichx += float(i.split(',')[5])
-        nichy += float(i.split(',')[6])
-
-    print(nichx / len(csv_list), nichy / len(csv_list))
-    return nichx / len(csv_list), nichy / len(csv_list)
 
 
 # MAIN # MAIN # MAIN
@@ -200,13 +150,14 @@ population = 20
 chain_length = 160
 fitness = 0
 genN = 0
+sphereResolution = 0.2 # 0-1 ratio of atoms measured
 
 init_population(population, chain_length)
 
 while fitness < 100:
-    blobulate()
+    #blobulate()
     #fold()
 
     genN += 1
-    fitness = fitness_function(1)
-    print("--------------", genN, fitness)
+    fitness = fitness_function()
+    print("---------------------------------------------------------", genN, fitness)
