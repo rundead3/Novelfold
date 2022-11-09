@@ -50,13 +50,20 @@ def fitness_function():
 
     # Create individuals
     chainList = []
+    bestFit = 0
+    bestIndex = 0
     for i in range(0, population):
         chainList.append(chainLogic(i))
         print(chainList[i])
+        if chainList[i].fitScore > bestFit:
+            bestIndex = i
+            bestFit = chainList[i].fitScore
+
+
 
 
     "convert residues into fasta format"
-    res1 = tri_to_fasta(ress[bestFit])
+    res1 = tri_to_fasta(chainList[bestIndex])
 
     fasta = open("C:\\Users\\42077\\Omegafold\\randseq.txt", "w")
 
@@ -72,15 +79,6 @@ def fitness_function():
     fasta.close()
     return bestFit
 
-
-def get_bounding_sphere(coords):
-    maxDist = 0
-
-    for i in range(0, len(coords), int(len(coords)*sphereResolution)):
-        for j in range(i, len(coords), int(len(coords)*sphereResolution)):
-            maxDist = max(maxDist, math.dist(coords[i], coords[j]))
-
-    return maxDist
 
 
 def mutate(res):
@@ -98,7 +96,7 @@ def mutate(res):
 def tri_to_fasta(res):
     "convert residues to one-letter code"
     res1 = []
-    for i in res:
+    for i in res.triplets:
         if i == 'ALA':
             res1.append('A')
         if i == 'ARG':
