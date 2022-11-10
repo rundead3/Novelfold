@@ -14,8 +14,7 @@ class nicheSpace:
 
 
     def __str__(self):
-        return np.array2string(self.archive, precision=2, separator=',',
-                      suppress_small=True)
+        return str(self.archive)
 
 
     def add_entry(self, chain):
