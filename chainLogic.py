@@ -31,7 +31,7 @@ class chainLogic:
         return msg
 
     def __repr__(self):
-        return str(self.fitScore)
+        return str(int(self.fitScore))
 
     def __gt__(self, other):
         if other == 0:

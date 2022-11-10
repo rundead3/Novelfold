@@ -37,7 +37,7 @@ def blobulate():
     os.chdir("C:\\Users\\42077\\Omegaforl\\blobulator\\blobulator-main\\")
     subprocess.run(
         "python compute_blobs.py --fasta C:\\Users\\42077\\Omegafold\\randseq.txt --cutoff 0.4 --minBlob 4 --oname .\\Batch\\Outputs\\",
-        shell=True, stdout=subprocess.DEVNULL)
+        shell=True, stderr=subprocess.DEVNULL)
 
 
 def fold():
@@ -98,8 +98,8 @@ init_population(population, chain_length)
 map = nicheSpace()
 
 while fitness < 100:
-    #blobulate()
-    #fold()
+    blobulate()
+    fold()
 
     genN += 1
     fitness = fitness_function()
