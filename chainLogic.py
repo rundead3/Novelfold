@@ -17,7 +17,7 @@ def get_bounding_sphere(coords):
 class chainLogic:
 
     def __init__(self, i):
-        self.denseScore = []
+        self.denseScore = None
         self.fitScore = None
         self.chainLength = None
         self.triplets = []
@@ -29,6 +29,12 @@ class chainLogic:
         msg = "Fit:" + str(self.fitScore) + " Density:" + str(self.denseScore) + " blob:" + str(
             self.blobulation) + " Lengh:" + str(self.chainLength)
         return msg
+
+    def __gt__(self, other):
+        if other == 0:
+            return True
+        return self.fitScore > other.get_fitness()
+
 
     def load_blobulator(self):
         csv_file = open(
@@ -54,9 +60,11 @@ class chainLogic:
             for chain in model:
                 a = 0
                 b = 0
+                l = 0
                 res = []
                 coords = []
                 for residue in chain:
+                    l += 1
                     res.append(residue.get_resname())
                     for atom in residue:
                         b += 1
@@ -64,9 +72,19 @@ class chainLogic:
                         coords.append(atom.get_coord())
 
                 fitness = (a / b)
-                self.chainLength = b
+                self.chainLength = l
                 self.fitScore = fitness
 
                 self.triplets.append(res)
 
-                self.denseScore.append(get_bounding_sphere(coords))
+                self.denseScore = get_bounding_sphere(coords)
+
+
+    def get_fitness(self):
+        return self.fitScore
+
+    def get_features(self):
+        return self.denseScore, self.blobulation[0]
+
+    def get_triplets(self):
+        return self.triplets

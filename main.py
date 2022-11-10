@@ -6,7 +6,9 @@ import matplotlib.pyplot as plt
 from Bio.PDB.PDBParser import PDBParser
 import os
 import subprocess
+import triplets
 from chainLogic import chainLogic
+from nicheSpace import nicheSpace
 
 
 def init_population(popSize, length):
@@ -51,20 +53,12 @@ def fitness_function():
     # Create individuals
     chainList = []
     bestFit = 0
-    bestIndex = 0
     for i in range(0, population):
         chainList.append(chainLogic(i))
-        print(chainList[i])
-        if chainList[i].fitScore > bestFit:
-            bestIndex = i
-            bestFit = chainList[i].fitScore
-
-
+        map.add_entry(chainList[i])
 
 
     "convert residues into fasta format"
-    res1 = tri_to_fasta(chainList[bestIndex])
-
     fasta = open("C:\\Users\\42077\\Omegafold\\randseq.txt", "w")
 
     for i in range(0, population):
@@ -72,7 +66,7 @@ def fitness_function():
         fasta.write("\n")
 
         """mutation of residues"""
-        fasta.write(str(mutate(res1)))
+        fasta.write(str(mutate(triplets.tri_to_fasta(map.get_random()))))
 
         fasta.write("\n")
 
@@ -93,56 +87,6 @@ def mutate(res):
     return resMut
 
 
-def tri_to_fasta(res):
-    "convert residues to one-letter code"
-    res1 = []
-    for i in res.triplets:
-        if i == 'ALA':
-            res1.append('A')
-        if i == 'ARG':
-            res1.append('R')
-        if i == 'ASN':
-            res1.append('N')
-        if i == 'ASP':
-            res1.append('D')
-        if i == 'CYS':
-            res1.append('C')
-        if i == 'GLN':
-            res1.append('Q')
-        if i == 'GLU':
-            res1.append('E')
-        if i == 'GLY':
-            res1.append('G')
-        if i == 'HIS':
-            res1.append('H')
-        if i == 'ILE':
-            res1.append('I')
-        if i == 'LEU':
-            res1.append('L')
-        if i == 'LYS':
-            res1.append('K')
-        if i == 'MET':
-            res1.append('M')
-        if i == 'PHE':
-            res1.append('F')
-        if i == 'PRO':
-            res1.append('P')
-        if i == 'SER':
-            res1.append('S')
-        if i == 'THR':
-            res1.append('T')
-        if i == 'TRP':
-            res1.append('W')
-        if i == 'TYR':
-            res1.append('Y')
-        if i == 'VAL':
-            res1.append('V')
-    return res1
-
-
-
-
-
 # MAIN # MAIN # MAIN
 population = 20
 chain_length = 160
@@ -151,11 +95,13 @@ genN = 0
 sphereResolution = 0.2 # 0-1 ratio of atoms measured
 
 init_population(population, chain_length)
+map = nicheSpace()
 
 while fitness < 100:
-    #blobulate()
-    #fold()
+    blobulate()
+    fold()
 
     genN += 1
     fitness = fitness_function()
     print("---------------------------------------------------------", genN, fitness)
+    print(map)
