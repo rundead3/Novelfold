@@ -37,7 +37,7 @@ def customize_axis(ax):
      spine.set_position(('outward', 5))
     # put the grid behind
     ax.set_axisbelow(True)
-    ax.grid(axis='y', color="0.9", linestyle='--', linewidth=1)
+    ax.archive(axis='y', color="0.9", linestyle='--', linewidth=1)
 
 fig = figure(frameon=False) # no frame
 
@@ -68,7 +68,7 @@ customize_axis(ax2)
 
 
 ax3 = fig.add_subplot(313)
-ax3.grid(axis='y', color="0.9", linestyle='--', linewidth=1)
+ax3.archive(axis='y', color="0.9", linestyle='--', linewidth=1)
 k = 0
 for i in sys.argv[1:]:
     data = np.loadtxt(i)

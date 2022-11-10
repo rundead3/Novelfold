@@ -51,13 +51,24 @@ def fold():
 def next_gen():
 
     # Create individuals
-    chainList = []
+    newChainList = []
     for i in range(0, population):
-        chainList.append(chainLogic(i))
-        map.add_entry(chainList[i])
+        newChainList.append(chainLogic(i))
+
+    map.adjust_range(newChainList)
+    map.clear_matrix()
+
+    #new
+    for i in range(0, population):
+        map.add_entry(newChainList[i])
+    #old
+    for chainRow in map.get_old().tolist():
+        for chain in chainRow:
+            if chain != 0:
+                map.add_entry(chain)
 
 
-def write_fastas():
+def new_population():
 
     "convert residues into fasta format"
     fasta = open("C:\\Users\\42077\\Omegafold\\randseq.txt", "w")
@@ -76,6 +87,8 @@ def write_fastas():
 
 
 def mutate(res):
+    crossChance = 0.1
+    mutChance = 0.2
     resMut = ""
     for i in res:
         """mutation of residues 95% of the time we put a normal residue but 5% of the time we put a random residue"""
@@ -104,7 +117,8 @@ while fitness < 100:
     genN += 1
     next_gen()
 
-    write_fastas()
+    new_population()
 
     print("----------------------------------", genN, "----------------------------------")
     print(map)
+    print(map.print_info())

@@ -19,7 +19,7 @@ def customize_axis(ax):
     ax.get_xaxis().tick_bottom()
     ax.get_yaxis().tick_left()
     ax.minorticks_on()
-    ax.grid(which='minor', linestyle='-', linewidth='0.5', alpha=0.5)
+    ax.archive(which='minor', linestyle='-', linewidth='0.5', alpha=0.5)
     ax.xaxis.set_minor_locator(AutoMinorLocator(2))
 
     # offset the spines
@@ -28,7 +28,7 @@ def customize_axis(ax):
 
     # put the grid behind
     ax.set_axisbelow(True)
-    ax.grid(axis='y', color="0.9", linestyle='-', linewidth=1)
+    ax.archive(axis='y', color="0.9", linestyle='-', linewidth=1)
 
 
 fig = figure(frameon=False,figsize=(6, 4))

@@ -5,25 +5,37 @@ from chainLogic import chainLogic
 class nicheSpace:
 
     def __init__(self):
+
+        self.old_archive = None
+        self.archive = None
         self.minx = 100
         self.maxx = 0
         self.miny = 100
         self.maxy = 0
         self.boxNo = 8
-        self.archive = np.zeros((self.boxNo, self.boxNo), chainLogic)
+        self.clear_matrix()
 
 
     def __str__(self):
         return str(self.archive)
 
+    def clear_matrix(self):
+        self.old_archive = self.archive
+        self.archive = np.zeros((self.boxNo, self.boxNo), chainLogic)
+
+    def adjust_range(self, newChains):
+
+        for chain in newChains:
+            chain
+            self.minx = min(self.minx, chain.get_features()[0])
+            self.maxx = max(self.maxx, chain.get_features()[0])
+            self.miny = min(self.miny, chain.get_features()[1])
+            self.maxy = max(self.maxy, chain.get_features()[1])
+
 
     def add_entry(self, chain):
 
         feats = chain.get_features()
-        self.minx = min(self.minx, feats[0])
-        self.maxx = max(self.maxx, feats[0])
-        self.miny = min(self.miny, feats[1])
-        self.maxy = max(self.maxy, feats[1])
 
         xi = 0
         yi = 0
@@ -46,6 +58,9 @@ class nicheSpace:
             y = random.randrange(0, self.boxNo)
             choice = self.archive[x, y]
         return choice
+
+    def get_old(self):
+        return self.old_archive
 
     def print_info(self):
         print("Density range:[" + str(self.minx) + "," + str(self.maxx) + "]")
