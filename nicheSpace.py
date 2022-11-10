@@ -46,3 +46,7 @@ class nicheSpace:
             y = random.randrange(0, self.boxNo)
             choice = self.archive[x, y]
         return choice
+
+    def print_info(self):
+        print("Density range:[" + str(self.minx) + "," + str(self.maxx) + "]")
+        print("Blobulation range:[" + str(self.miny) + "," + str(self.maxy) + "]")

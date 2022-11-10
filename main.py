@@ -37,7 +37,7 @@ def blobulate():
     os.chdir("C:\\Users\\42077\\Omegaforl\\blobulator\\blobulator-main\\")
     subprocess.run(
         "python compute_blobs.py --fasta C:\\Users\\42077\\Omegafold\\randseq.txt --cutoff 0.4 --minBlob 4 --oname .\\Batch\\Outputs\\",
-        shell=True, stderr=subprocess.DEVNULL)
+        shell=True, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
 
 
 def fold():
@@ -48,15 +48,16 @@ def fold():
     "END OMEGAFOLD"
 
 
-def fitness_function():
+def next_gen():
 
     # Create individuals
     chainList = []
-    bestFit = 0
     for i in range(0, population):
         chainList.append(chainLogic(i))
         map.add_entry(chainList[i])
 
+
+def write_fastas():
 
     "convert residues into fasta format"
     fasta = open("C:\\Users\\42077\\Omegafold\\randseq.txt", "w")
@@ -71,7 +72,6 @@ def fitness_function():
         fasta.write("\n")
 
     fasta.close()
-    return bestFit
 
 
 
@@ -102,6 +102,9 @@ while fitness < 100:
     fold()
 
     genN += 1
-    fitness = fitness_function()
-    print("---------------------------------------------------------", genN, fitness)
+    next_gen()
+
+    write_fastas()
+
+    print("----------------------------------", genN, "----------------------------------")
     print(map)
