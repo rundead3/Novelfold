@@ -14,7 +14,8 @@ class nicheSpace:
 
 
     def __str__(self):
-        return str(self.archive)
+        return np.array2string(self.archive, precision=2, separator=',',
+                      suppress_small=True)
 
 
     def add_entry(self, chain):
@@ -44,6 +45,5 @@ class nicheSpace:
         while choice == 0:
             x = random.randrange(0, self.boxNo)
             y = random.randrange(0, self.boxNo)
-            choice = self.archive[x,y]
-            choice = self.archive[x,y]
+            choice = self.archive[x, y]
         return choice

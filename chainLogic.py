@@ -30,6 +30,9 @@ class chainLogic:
             self.blobulation) + " Lengh:" + str(self.chainLength)
         return msg
 
+    def __int__(self):
+        return int(self.fitScore)
+
     def __gt__(self, other):
         if other == 0:
             return True

@@ -98,8 +98,8 @@ init_population(population, chain_length)
 map = nicheSpace()
 
 while fitness < 100:
-    blobulate()
-    fold()
+    #blobulate()
+    #fold()
 
     genN += 1
     fitness = fitness_function()
