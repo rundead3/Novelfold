@@ -125,9 +125,11 @@ while genN < generations:
 
     new_population()
 
-    print("----------------------------------", genN, "----------------------------------")
     print(map)
     print(map.print_info())
 
     if genN % 100 == 1:
         map.write_archive_fastas(genN)
+        map.fold_archive(genN)
+
+    print("----------------------------------", genN, "----------------------------------")

@@ -1,4 +1,7 @@
+import os
 import random
+import subprocess
+
 import numpy as np
 
 import triplets
@@ -91,3 +94,9 @@ class nicheSpace:
             y = 0
 
         fasta.close()
+
+
+    def fold_archive(self, genNo):
+        os.mkdir("C:\\Users\\42077\\Novelfold\\Archive\\pdbs\\"+str(genNo))
+        subprocess.run(
+            "omegafold C:\\Users\\42077\\Novelfold\\Archive\\fastas\\archive"+str(genNo)+".txt C:\\Users\\42077\\Novelfold\\Archive\\pdbs\\"+str(genNo)+" --num_cycle 2", shell=True)
