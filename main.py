@@ -49,7 +49,6 @@ def fold():
 
 
 def next_gen():
-
     # Create individuals
     newChainList = []
     for i in range(0, population):
@@ -58,10 +57,10 @@ def next_gen():
     map.adjust_range(newChainList)
     map.clear_matrix()
 
-    #new
+    # new
     for i in range(0, population):
         map.add_entry(newChainList[i])
-    #old
+    # old
     for chainRow in map.get_old().tolist():
         for chain in chainRow:
             if chain != 0:
@@ -69,7 +68,6 @@ def next_gen():
 
 
 def new_population():
-
     "convert residues into fasta format"
     fasta = open("C:\\Users\\42077\\Omegafold\\randseq.txt", "w")
 
@@ -78,39 +76,47 @@ def new_population():
         fasta.write("\n")
 
         """mutation of residues"""
-        fasta.write(str(mutate(triplets.tri_to_fasta(map.get_random()))))
+        fasta.write(str(mutate(triplets.tri_to_fasta(map.get_random()), triplets.tri_to_fasta(map.get_random()))))
 
         fasta.write("\n")
 
     fasta.close()
 
 
-
-def mutate(res):
+def mutate(res1, res2):
     crossChance = 0.1
-    mutChance = 0.2
+    mutChance = 0.05
+    read1 = True
     resMut = ""
-    for i in res:
+    for i in range(0, len(res1)):
         """mutation of residues 95% of the time we put a normal residue but 5% of the time we put a random residue"""
-        if random.random() < 0.95:
-            resMut += str(i)
-        else:
+        if random.random() < mutChance:
             resMut += str(random.choice(
                 ['A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V']))
+        else:
+            if random.random() < crossChance:
+                read1 = not read1
+
+            if read1:
+                resMut += str(res1[i])
+            else:
+                resMut += str(res2[i])
     return resMut
 
 
 # MAIN # MAIN # MAIN
 population = 20
 chain_length = 160
+generations = 500
+
 fitness = 0
 genN = 0
-sphereResolution = 0.2 # 0-1 ratio of atoms measured
+sphereResolution = 0.2  # ratio of atoms measured
 
 init_population(population, chain_length)
 map = nicheSpace()
 
-while fitness < 100:
+while genN < generations:
     blobulate()
     fold()
 
@@ -122,3 +128,6 @@ while fitness < 100:
     print("----------------------------------", genN, "----------------------------------")
     print(map)
     print(map.print_info())
+
+    if genN % 100 == 1:
+        map.write_archive_fastas(genN)

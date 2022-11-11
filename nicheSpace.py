@@ -1,5 +1,7 @@
 import random
 import numpy as np
+
+import triplets
 from chainLogic import chainLogic
 
 class nicheSpace:
@@ -65,3 +67,27 @@ class nicheSpace:
     def print_info(self):
         print("Density range:[" + str(self.minx) + "," + str(self.maxx) + "]")
         print("Blobulation range:[" + str(self.miny) + "," + str(self.maxy) + "]")
+
+
+    def write_archive_fastas(self, genNo):
+
+        "convert residues into fasta format"
+        fasta = open("C:\\Users\\42077\\Novelfold\\Archive\\fastas\\archive"+str(genNo)+".txt", "w")
+        x = 0
+        y = 0
+
+        for chainRow in self.archive.tolist():
+            for chain in chainRow:
+                if chain != 0:
+                    fasta.write(">" + str((x, y)) + "th chain")
+                    fasta.write("\n")
+
+                    """mutation of residues"""
+                    fasta.write("".join(triplets.tri_to_fasta(chain)))
+
+                    fasta.write("\n")
+                y += 1
+            x += 1
+            y = 0
+
+        fasta.close()
