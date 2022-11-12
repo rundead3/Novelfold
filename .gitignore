@@ -2,3 +2,7 @@
 .idea/misc.xml
 .idea/vcs.xml
 Archive/*
+Archive/pdbs/16th chain.pdb
+Archive/fastas/archive1.txt
+__pycache__/nicheSpace.cpython-310.pyc
+__pycache__/chainLogic.cpython-310.pyc

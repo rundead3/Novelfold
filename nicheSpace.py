@@ -33,7 +33,7 @@ class nicheSpace:
         for chain in newChains:
             chain
             self.minx = min(self.minx, chain.get_features()[0])
-            self.maxx = max(self.maxx, chain.get_features()[0])
+            self.maxx = 0.4 # max(self.maxx, chain.get_features()[0])
             self.miny = min(self.miny, chain.get_features()[1])
             self.maxy = max(self.maxy, chain.get_features()[1])
 
@@ -97,6 +97,8 @@ class nicheSpace:
 
 
     def fold_archive(self, genNo):
-        os.mkdir("C:\\Users\\42077\\Novelfold\\Archive\\pdbs\\"+str(genNo))
+        directory = "C:\\Users\\42077\\Novelfold\\Archive\\pdbs\\"+str(genNo)
+        if not os.path.exists(directory):
+            os.mkdir(directory)
         subprocess.run(
-            "omegafold C:\\Users\\42077\\Novelfold\\Archive\\fastas\\archive"+str(genNo)+".txt C:\\Users\\42077\\Novelfold\\Archive\\pdbs\\"+str(genNo)+" --num_cycle 2", shell=True)
+            "omegafold C:\\Users\\42077\\Novelfold\\Archive\\fastas\\archive"+str(genNo)+".txt "+directory+" --num_cycle 2", shell=True)

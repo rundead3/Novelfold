@@ -107,7 +107,7 @@ def mutate(res1, res2):
 # MAIN # MAIN # MAIN
 population = 20
 chain_length = 160
-generations = 500
+generations = 502
 
 fitness = 0
 genN = 0

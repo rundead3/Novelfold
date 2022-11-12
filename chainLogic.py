@@ -80,7 +80,7 @@ class chainLogic:
 
                 self.triplets.append(res)
 
-                self.denseScore = get_bounding_sphere(coords)
+                self.denseScore = get_bounding_sphere(coords) / self.chainLength
 
 
     def get_fitness(self):
