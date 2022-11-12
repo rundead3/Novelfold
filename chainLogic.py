@@ -31,7 +31,7 @@ class chainLogic:
         return msg
 
     def __repr__(self):
-        return str(int(self.fitScore)) +"|"+ str(int(self.denseScore)) +"|"+  str(int(self.blobulation))
+        return str(int(self.fitScore)) + "|" + str(int(self.denseScore)) + "|" + str(int(self.blobulation[0]))
 
     def __gt__(self, other):
         if other == 0:
