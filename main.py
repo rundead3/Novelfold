@@ -1,9 +1,5 @@
 """(x,y,z) = max(x,y,z) - min(x,y,z)"""
 import random
-import numpy as np
-import math
-import matplotlib.pyplot as plt
-from Bio.PDB.PDBParser import PDBParser
 import os
 import subprocess
 import triplets

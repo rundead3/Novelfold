@@ -35,7 +35,7 @@ class nicheSpace:
             self.minx = min(self.minx, chain.get_features()[0])
             self.maxx = 0.4 # max(self.maxx, chain.get_features()[0])
             self.miny = min(self.miny, chain.get_features()[1])
-            self.maxy = max(self.maxy, chain.get_features()[1])
+            self.maxy = 160/10 # max(self.maxy, chain.get_features()[1])
 
 
     def add_entry(self, chain):
