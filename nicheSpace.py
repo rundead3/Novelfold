@@ -82,7 +82,7 @@ class nicheSpace:
         for chainRow in self.archive.tolist():
             for chain in chainRow:
                 if chain != 0:
-                    fasta.write(">" + str((x, y)) + "th chain")
+                    fasta.write(">" + str(x) + "_" + str(y) + "_FDB_" + str(chain) + "_" + str(chain.get_features()[0]) + "_" + str(chain.get_features()[0]))
                     fasta.write("\n")
 
                     """mutation of residues"""
