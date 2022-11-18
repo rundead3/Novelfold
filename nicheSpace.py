@@ -31,11 +31,10 @@ class nicheSpace:
     def adjust_range(self, newChains):
 
         for chain in newChains:
-            chain
             self.minx = min(self.minx, chain.get_features()[0])
-            self.maxx = 0.4 # max(self.maxx, chain.get_features()[0])
+            self.maxx = max(self.maxx, chain.get_features()[0])
             self.miny = min(self.miny, chain.get_features()[1])
-            self.maxy = 160/10 # max(self.maxy, chain.get_features()[1])
+            self.maxy = max(self.maxy, chain.get_features()[1])
 
 
     def add_entry(self, chain):
@@ -68,8 +67,8 @@ class nicheSpace:
         return self.old_archive
 
     def print_info(self):
-        print("Density range:[" + str(self.minx) + "," + str(self.maxx) + "]")
-        print("Blobulation range:[" + str(self.miny) + "," + str(self.maxy) + "]")
+        print("X range:[" + str(self.miny) + "," + str(self.maxy) + "]")
+        print("Y range:[" + str(self.minx) + "," + str(self.maxx) + "]")
 
 
     def write_archive_fastas(self, genNo):
@@ -82,7 +81,7 @@ class nicheSpace:
         for chainRow in self.archive.tolist():
             for chain in chainRow:
                 if chain != 0:
-                    fasta.write(">" + str(x) + "_" + str(y) + "_FDB_" + str(chain) + "_" + str(chain.get_features()[0]) + "_" + str(chain.get_features()[0]))
+                    fasta.write(">" + str(x) + "_" + str(y) + "_FDB_" + str(int(chain.get_fitness())) + "_" + str(int(100*chain.get_features()[0])) + "_" + str(int(chain.get_features()[0])))
                     fasta.write("\n")
 
                     """mutation of residues"""

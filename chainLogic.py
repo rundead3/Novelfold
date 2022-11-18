@@ -18,25 +18,27 @@ class chainLogic:
 
     def __init__(self, i):
         self.denseScore = None
-        self.fitScore = None
+        self.confidence = None
         self.chainLength = None
         self.triplets = []
         self.index = i
-        self.blobulation = self.load_blobulator()
+        #self.blobulation = self.load_blobulator()
         self.load_omegafold()
+        self.secondaryStruct = self.load_dssp()
+
 
     def __str__(self):
-        msg = "Fit:" + str(self.fitScore) + " Density:" + str(self.denseScore) + " blob:" + str(
-            self.blobulation) + " Lengh:" + str(self.chainLength)
+        msg = "Conf:" + str(self.confidence) + " Density:" + str(self.denseScore) + " secondary:" + str(
+            self.secondaryStruct) + " Lengh:" + str(self.chainLength)
         return msg
 
     def __repr__(self):
-        return str(int(self.fitScore)) + "|" + str(round(self.denseScore, 2)) + "|" + str(int(self.blobulation[0]))
+        return str(int(self.confidence)) + "|" + str(int(self.denseScore * 100))
 
     def __gt__(self, other):
         if other == 0:
             return True
-        return self.fitScore > other.get_fitness()
+        return self.get_fitness() > other.get_fitness()
 
 
     def load_blobulator(self):
@@ -58,7 +60,7 @@ class chainLogic:
     def load_omegafold(self):
         parser = PDBParser()
         structure = parser.get_structure(str(self.index) + "th chain",
-                                         "C:\\Users\\42077\\Omegaforl\\res1\\" + str(self.index) + "th chain.pdb")
+                                         "C:\\Users\\42077\\Omegaforl\\res1\\" + str(self.index) + "th_chain.pdb")
         for model in structure:
             for chain in model:
                 a = 0
@@ -74,20 +76,40 @@ class chainLogic:
                         a += atom.bfactor
                         coords.append(atom.get_coord())
 
-                fitness = (a / b)
+                avg = (a / b)
                 self.chainLength = l
-                self.fitScore = fitness
+                self.confidence = avg
 
                 self.triplets.append(res)
 
-                self.denseScore = get_bounding_sphere(coords) / self.chainLength
+                self.denseScore = 1 / (get_bounding_sphere(coords) / math.pow(self.chainLength, 1/3))
+
+
+    def load_dssp(self):
+        file = open("C:\\Users\\42077\\Omegaforl\\res1\\dssps.txt", "r")
+        linelist = file.readlines()
+        file.close()
+
+        ourline = linelist[self.index]
+        alphas = 0
+        betas = 0
+        for i in range(0, self.chainLength):
+            if ourline[i] == "H":
+                alphas += 1
+            elif ourline[i] == "E":
+                betas += 1
+        return alphas/self.chainLength, betas/self.chainLength
 
 
     def get_fitness(self):
-        return self.fitScore
+        return self.denseScore * (self.confidence/100)
 
     def get_features(self):
-        return self.denseScore, self.blobulation[0]
+        return self.secondaryStruct[0], self.secondaryStruct[1]
 
     def get_triplets(self):
         return self.triplets
+
+    def survivable(self, cutoff):
+        # return self.confidence > cutoff
+        return true

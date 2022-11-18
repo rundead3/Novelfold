@@ -11,7 +11,7 @@ def init_population(popSize, length):
     fasta = open("C:\\Users\\42077\\Omegafold\\randseq.txt", "w")
 
     for i in range(0, popSize):
-        fasta.write(">" + str(i) + "th chain")
+        fasta.write(">" + str(i) + "th_chain")
         fasta.write("\n")
 
         """mutation of residues"""
@@ -44,17 +44,30 @@ def fold():
     "END OMEGAFOLD"
 
 
+def dssp():
+    pdbs = ""
+    for i in range(0, population):
+        pdbs += " C:\\Users\\42077\\Omegaforl\\res1\\"+str(i) + "th_chain.pdb"
+    output = " -o C:\\Users\\42077\\Omegaforl\\res1\\dssps.txt"
+    subprocess.run("python C:\\Users\\42077\\Omegaforl\\PyDSSP\\scripts\\pydssp"+pdbs+output)
+
+
+
 def next_gen():
     # Create individuals
     newChainList = []
     for i in range(0, population):
-        newChainList.append(chainLogic(i))
+        newPeep = chainLogic(i)
+        if newPeep.survivable(confidence_cutoff):
+            newChainList.append(newPeep)
+        else:
+            print(newPeep)
 
     map.adjust_range(newChainList)
     map.clear_matrix()
 
     # new
-    for i in range(0, population):
+    for i in range(0, len(newChainList)):
         map.add_entry(newChainList[i])
     # old
     for chainRow in map.get_old().tolist():
@@ -68,7 +81,7 @@ def new_population():
     fasta = open("C:\\Users\\42077\\Omegafold\\randseq.txt", "w")
 
     for i in range(0, population):
-        fasta.write(">" + str(i) + "th chain")
+        fasta.write(">" + str(i) + "th_chain")
         fasta.write("\n")
 
         """mutation of residues"""
@@ -102,6 +115,7 @@ def mutate(res1, res2):
 
 # MAIN # MAIN # MAIN
 population = 20
+confidence_cutoff = 28
 chain_length = 160
 generations = 500
 
@@ -113,8 +127,9 @@ init_population(population, chain_length)
 map = nicheSpace()
 
 while genN < generations:
-    blobulate()
+    #blobulate()
     fold()
+    dssp()
 
     genN += 1
     next_gen()
@@ -124,7 +139,7 @@ while genN < generations:
     print(map)
     map.print_info()
 
-    if genN % 50 == 0 & genN != 0:
+    if genN % 50 == 0 and genN != 0:
         map.write_archive_fastas(genN)
         map.fold_archive(genN)
 
