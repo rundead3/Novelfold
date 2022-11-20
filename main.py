@@ -1,7 +1,11 @@
 """(x,y,z) = max(x,y,z) - min(x,y,z)"""
 import random
+from random import randrange
 import os
 import subprocess
+
+import numpy as np
+
 import triplets
 from chainLogic import chainLogic
 from nicheSpace import nicheSpace
@@ -39,7 +43,7 @@ def blobulate():
 def fold():
     "START OMEGAFOLD"
     os.chdir("C:\\Users\\42077\\OmegaFold")
-    subprocess.run("omegafold C:\\Users\\42077\\Omegafold\\randseq.txt C:\\Users\\42077\\Omegaforl\\res1 --num_cycle 1",
+    subprocess.run("omegafold C:\\Users\\42077\\Omegafold\\randseq.txt C:\\Users\\42077\\Omegaforl\\res1 --num_cycle 1 --subbatch_size 256",
                    shell=True)
     "END OMEGAFOLD"
 
@@ -63,17 +67,19 @@ def next_gen():
         else:
             print(newPeep)
 
-    map.adjust_range(newChainList)
-    map.clear_matrix()
+    maps[epoch].adjust_range(newChainList)
+    maps[epoch].clear_matrix()
 
     # new
     for i in range(0, len(newChainList)):
-        map.add_entry(newChainList[i])
-    # old
-    for chainRow in map.get_old().tolist():
-        for chain in chainRow:
-            if chain != 0:
-                map.add_entry(chain)
+        maps[epoch].add_entry(newChainList[i])
+
+    # old only if not new epoch
+    if genN % epochGens != 0:
+        for chainRow in maps[epoch].get_old().tolist():
+            for chain in chainRow:
+                if chain != 0:
+                    maps[epoch].add_entry(chain)
 
 
 def new_population():
@@ -85,7 +91,10 @@ def new_population():
         fasta.write("\n")
 
         """mutation of residues"""
-        fasta.write(str(mutate(triplets.tri_to_fasta(map.get_random()), triplets.tri_to_fasta(map.get_random()))))
+        newChain = str(mutate(triplets.tri_to_fasta(maps[randrange(epoch+1)].get_random()), triplets.tri_to_fasta(maps[randrange(epoch+1)].get_random())))
+        while len(newChain) < chain_length:
+            newChain += newChain[::-1]
+        fasta.write(newChain)
 
         fasta.write("\n")
 
@@ -97,7 +106,7 @@ def mutate(res1, res2):
     mutChance = 0.05
     read1 = True
     resMut = ""
-    for i in range(0, len(res1)):
+    for i in range(0, min(len(res1), len(res2))):
         """mutation of residues 95% of the time we put a normal residue but 5% of the time we put a random residue"""
         if random.random() < mutChance:
             resMut += str(random.choice(
@@ -116,15 +125,18 @@ def mutate(res1, res2):
 # MAIN # MAIN # MAIN
 population = 20
 confidence_cutoff = 28
-chain_length = 160
-generations = 500
+chain_length = 64
+generations = 2000
+epochGens = 400
+epoch = 0
 
 fitness = 0
 genN = 0
 sphereResolution = 0.2  # ratio of atoms measured
 
 init_population(population, chain_length)
-map = nicheSpace()
+maps = []
+maps.append(nicheSpace())
 
 while genN < generations:
     #blobulate()
@@ -136,11 +148,16 @@ while genN < generations:
 
     new_population()
 
-    print(map)
-    map.print_info()
+    print(maps[epoch])
+    maps[epoch].print_info()
 
-    if genN % 50 == 0 and genN != 0:
-        map.write_archive_fastas(genN)
-        map.fold_archive(genN)
+    if genN % 50 == 0:
+        maps[epoch].write_archive_fastas(genN)
+        maps[epoch].fold_archive(genN)
+
+    if genN % epochGens == 0:
+        chain_length *= 2
+        epoch += 1
+        maps.append(nicheSpace())
 
     print("----------------------------------", genN, "----------------------------------")

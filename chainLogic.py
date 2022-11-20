@@ -102,7 +102,7 @@ class chainLogic:
 
 
     def get_fitness(self):
-        return self.denseScore * (self.confidence/100)
+        return self.denseScore * self.confidence
 
     def get_features(self):
         return self.secondaryStruct[0], self.secondaryStruct[1]
@@ -112,4 +112,4 @@ class chainLogic:
 
     def survivable(self, cutoff):
         # return self.confidence > cutoff
-        return true
+        return True
