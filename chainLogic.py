@@ -1,3 +1,4 @@
+import numpy as np
 from Bio.PDB.PDBParser import PDBParser
 import math
 
@@ -5,13 +6,26 @@ import math
 def get_bounding_sphere(coords):
     maxDist = 0
 
-    resolution = 0.1 # every 10th atom
+    resolution = 0.1  # every 10th atom
 
     for i in range(0, len(coords), int(len(coords) * resolution)):
         for j in range(i, len(coords), int(len(coords) * resolution)):
             maxDist = max(maxDist, math.dist(coords[i], coords[j]))
 
     return maxDist
+
+
+def get_gyration_radius(coords):
+    # get the center of mass
+    center = np.mean(coords, axis=0)
+
+    # get the squared distances from the center of mass squared
+    squared_distances = np.sum((coords - center) ** 2, axis=1)
+
+    # get the gyration radius
+    gyration_radius = np.sqrt(np.mean(squared_distances))
+
+    return gyration_radius
 
 
 class chainLogic:
@@ -22,10 +36,9 @@ class chainLogic:
         self.chainLength = None
         self.triplets = []
         self.index = i
-        #self.blobulation = self.load_blobulator()
+        # self.blobulation = self.load_blobulator()
         self.load_omegafold()
         self.secondaryStruct = self.load_dssp()
-
 
     def __str__(self):
         msg = "Conf:" + str(self.confidence) + " Density:" + str(self.denseScore) + " secondary:" + str(
@@ -38,12 +51,11 @@ class chainLogic:
     def __gt__(self, other):
         if other == 0:
             return True
-        return self.get_fitness() > other.get_fitness()
-
+        return self.get_fitness() < other.get_fitness()
 
     def load_blobulator(self):
         csv_file = open(
-            "C:\\Users\\42077\\Omegaforl\\blobulator\\blobulator-main\\Batch\\Outputs\\" + str(self.index) + "th.csv",
+            "C:\\Users\\Rundead\\Omegaforl\\blobulator-main\\Batch" + str(self.index) + "th.csv",
             "r")
         csv_list = csv_file.readlines()
         csv_file.close()
@@ -60,7 +72,8 @@ class chainLogic:
     def load_omegafold(self):
         parser = PDBParser()
         structure = parser.get_structure(str(self.index) + "th chain",
-                                         "C:\\Users\\42077\\Omegaforl\\res1\\" + str(self.index) + "th_chain.pdb")
+                                         "C:\\Users\\Rundead\\Omegaforl\\res1\\" + str(self.index) + "th_chain.pdb")
+
         for model in structure:
             for chain in model:
                 a = 0
@@ -82,11 +95,12 @@ class chainLogic:
 
                 self.triplets.append(res)
 
-                self.denseScore = 1 / (get_bounding_sphere(coords) / math.pow(self.chainLength, 1/3))
+                ##self.denseScore = 1 / (get_bounding_sphere(coords) / math.pow(self.chainLength, 1/3))
 
+                self.denseScore = get_gyration_radius(coords)
 
     def load_dssp(self):
-        file = open("C:\\Users\\42077\\Omegaforl\\res1\\dssps.txt", "r")
+        file = open("C:\\Users\\Rundead\\Omegaforl\\res1\\dssps.txt", "r")
         linelist = file.readlines()
         file.close()
 
@@ -98,11 +112,10 @@ class chainLogic:
                 alphas += 1
             elif ourline[i] == "E":
                 betas += 1
-        return alphas/self.chainLength, betas/self.chainLength
-
+        return alphas / self.chainLength, betas / self.chainLength
 
     def get_fitness(self):
-        return self.denseScore * (self.confidence/100)
+        return self.denseScore
 
     def get_features(self):
         return self.secondaryStruct[0], self.secondaryStruct[1]
@@ -112,4 +125,4 @@ class chainLogic:
 
     def survivable(self, cutoff):
         # return self.confidence > cutoff
-        return true
+        return True

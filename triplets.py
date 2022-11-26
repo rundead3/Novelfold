@@ -1,4 +1,21 @@
+import random
+def random_triplet():
+    aminochance=[8.25,5.53,4.06,5.45,1.37,3.93,6.75,7.07,2.27,5.96,9.66,5.84,2.42,3.86,4.70,6.56,5.34,1.08,2.92,6.87]
+    aminotr=['A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V']
+    floor = 0
+    choice = random.randrange(0,100)
+    index = 0
+    for amino in aminochance:
+        if choice < floor + amino:
+            return aminotr[index]
+        floor += amino
+        index += 1
 
+def random_chain(length):
+    chain = ""
+    for i in range(length):
+        chain += random_triplet()
+    return chain
 
 def tri_to_fasta(res):
     "convert residues to one-letter code"
