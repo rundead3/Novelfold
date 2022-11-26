@@ -3,12 +3,12 @@ import random
 import os
 import subprocess
 import triplets
+import config
 from chainLogic import chainLogic
 from nicheSpace import nicheSpace
-import blosum as bl
 
 def init_population(popSize, length):
-    fasta = open("C:\\Users\\Rundead\\Omegafold\\randseq.txt", "w")
+    fasta = open(config.get_new_fastas_path(), "w")
 
     for i in range(0, popSize):
         fasta.write(">" + str(i) + "th_chain")
@@ -20,19 +20,10 @@ def init_population(popSize, length):
         fasta.write("\n")
 
 
-def random_chain(length):
-    strSeq = ""
-    for i in range(0, length):
-        strSeq += str(random.choice(
-            ['A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V']))
-    return strSeq
-
-
 def blobulate():
     """COMPUTE BLOBS"""
-    #os.chdir(blobpath)
     subprocess.run(
-        "python compute_blobs.py --fasta C:\\Users\\Rundead\\Omegafold\\randseq.txt --cutoff 0.4 --minBlob 4 --oname C:\\Users\\Rundead\\Omegaforl\\blobulator-main",
+        "python compute_blobs.py --fasta "+config.get_new_fastas_path()+" --cutoff 0.4 --minBlob 4 --oname "+config.get_blobulator_path(),
         shell=True, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
 
 
@@ -40,18 +31,12 @@ def blobulate():
 ##def netsurf(fasta):
 ##    nsp3 = biolib.load('DTU/NetSurfP-3')
 ##    nsp3_results = nsp3.cli(args='-i' + str(fasta))
-##    nsp3_results.save_files("C:\\Users\\Rundead\\Omegafold\\netsurf")
-
-
-def feature_extraction():
-    """extract features from pdb files"""
-    os.chdir("C:\\Users\\Rundead\\Videos\\PyDSSP-0.9.0\\scripts")
-    subprocess.run("python pydssp -i C:\\Users\\Rundead\\Omegaforl\\res1\\ -o C:\\Users\\Rundead\\Omegaforl\\res1\\")
+##    nsp3_results.save_files("C:\\Users\\42077\\Omegafold\\netsurf")
 
 def fold():
     "START OMEGAFOLD"
-    os.chdir("C:\\Users\\Rundead\\OmegaFold")
-    subprocess.run("omegafold C:\\Users\\Rundead\\Omegafold\\randseq.txt C:\\Users\\Rundead\\Omegaforl\\res1 --num_cycle 1",
+    os.chdir(config.get_omegafold_path())
+    subprocess.run("omegafold "+config.get_new_fastas_path()+" "+config.get_pdbs_path()+" --num_cycle 1",
                    shell=True)
     "END OMEGAFOLD"
 
@@ -59,9 +44,9 @@ def fold():
 def dssp():
     pdbs = ""
     for i in range(0, population):
-        pdbs += " C:\\Users\\Rundead\\Omegaforl\\res1\\"+str(i) + "th_chain.pdb"
-    output = " -o C:\\Users\\Rundead\\Omegaforl\\res1\\dssps.txt"
-    subprocess.run("python C:\\Users\\Rundead\\Omegaforl\\PyDSSP-0.9.0\\scripts\\pydssp"+pdbs+output)
+        pdbs += " "+config.get_pdbs_path() + str(i) + "th_chain.pdb"
+    output = " -o "+config.get_dssp_output_path()
+    subprocess.run("python "+config.get_dssp_path()+pdbs+output)
 
 
 
@@ -90,7 +75,7 @@ def next_gen():
 
 def new_population():
     "convert residues into fasta format"
-    fasta = open("C:\\Users\\Rundead\\Omegafold\\randseq.txt", "w")
+    fasta = open(config.get_new_fastas_path(), "w")
 
     for i in range(0, population):
         fasta.write(">" + str(i) + "th_chain")
@@ -109,15 +94,10 @@ def mutate(res1, res2):
     mutChance = 0.05
     read1 = True
     resMut = ""
-    dic = bl.BLOSUM(45)
     for i in range(0, len(res1)):
         """mutation of residues 95% of the time we put a normal residue but 5% of the time we put a random residue"""
-        ##if random.random() < mutChance:
-            ##val = dic(str(i)+ str(for i in ['A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V'])
         if random.random() < mutChance:
             resMut += str(triplets.random_triplet())
-            #resMut += str(random.choice(
-            #    ['A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V']))
         else:
             if random.random() < crossChance:
                 read1 = not read1

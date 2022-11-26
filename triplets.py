@@ -17,6 +17,13 @@ def random_chain(length):
         chain += random_triplet()
     return chain
 
+def random_random_chain(length):
+    strSeq = ""
+    for i in range(0, length):
+        strSeq += str(random.choice(
+            ['A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V']))
+    return strSeq
+
 def tri_to_fasta(res):
     "convert residues to one-letter code"
     res1 = []

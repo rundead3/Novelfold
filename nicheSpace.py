@@ -5,6 +5,7 @@ import subprocess
 import numpy as np
 
 import triplets
+import config
 from chainLogic import chainLogic
 
 class nicheSpace:
@@ -13,12 +14,12 @@ class nicheSpace:
 
         self.old_archive = None
         self.archive = None
-        self.fightclub = None
         self.minx = 100
         self.maxx = 0
         self.miny = 100
         self.maxy = 0
-        self.boxNo = 12
+        self.boxNo = 8
+        self.fightclub = np.zeros((self.boxNo, self.boxNo), int)
         self.clear_matrix()
 
 
@@ -28,15 +29,16 @@ class nicheSpace:
         for x in range(self.boxNo):
             for y in range(self.boxNo):
                 wtf = str(self.archive[x, y].__repr__()) + "|" + str(self.fightclub[x, y])
+                #wtf = self.archive[x, y].__repr__()
                 arena[x, y] = wtf
-        return str(arena)
+        return np.array2string(arena, separator=' ', formatter={'str_kind': lambda arena: arena})
 
 
 
     def clear_matrix(self):
         self.old_archive = self.archive
         self.archive = np.zeros((self.boxNo, self.boxNo), chainLogic)
-        self.fightclub = np.zeros((self.boxNo, self.boxNo), int)
+        # self.fightclub = np.zeros((self.boxNo, self.boxNo), int)
 
     def adjust_range(self, newChains):
 
@@ -85,7 +87,7 @@ class nicheSpace:
     def write_archive_fastas(self, genNo):
 
         "convert residues into fasta format"
-        fasta = open("C:\\Users\\Rundead\\Novelfold\\Archive\\fastas\\archive"+str(genNo)+".txt", "w")
+        fasta = open(config.get_archive_fasta_path(genNo)+".txt", "w")
         x = 0
         y = 0
 
@@ -107,8 +109,8 @@ class nicheSpace:
 
 
     def fold_archive(self, genNo):
-        directory = "C:\\Users\\Rundead\\Novelfold\\Archive\\gen"+str(genNo)
+        directory = config.get_archive_pdb_path(genNo)
         if not os.path.exists(directory):
             os.makedirs(directory)
         subprocess.run(
-            "omegafold C:\\Users\\Rundead\\Novelfold\\Archive\\fastas\\archive"+str(genNo)+".txt C:\\Users\\Rundead\\Novelfold\\Archive\\pdbs\\"+str(genNo)+" --num_cycle 2", shell=True)
+            "omegafold "+config.get_archive_fasta_path(genNo)+directory+" --num_cycle 2", shell=True)

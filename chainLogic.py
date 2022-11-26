@@ -46,7 +46,7 @@ class chainLogic:
         return msg
 
     def __repr__(self):
-        return str(int(self.confidence)) + "|" + str(int(self.denseScore * 100))
+        return str(int(self.confidence)) + "|" + str(int(self.denseScore))
 
     def __gt__(self, other):
         if other == 0:
@@ -55,7 +55,7 @@ class chainLogic:
 
     def load_blobulator(self):
         csv_file = open(
-            "C:\\Users\\Rundead\\Omegaforl\\blobulator-main\\Batch" + str(self.index) + "th.csv",
+            "C:\\Users\\42077\\Omegaforl\\blobulator-main\\Batch" + str(self.index) + "th.csv",
             "r")
         csv_list = csv_file.readlines()
         csv_file.close()
@@ -72,7 +72,7 @@ class chainLogic:
     def load_omegafold(self):
         parser = PDBParser()
         structure = parser.get_structure(str(self.index) + "th chain",
-                                         "C:\\Users\\Rundead\\Omegaforl\\res1\\" + str(self.index) + "th_chain.pdb")
+                                         "C:\\Users\\42077\\Omegaforl\\res1\\" + str(self.index) + "th_chain.pdb")
 
         for model in structure:
             for chain in model:
@@ -100,7 +100,7 @@ class chainLogic:
                 self.denseScore = get_gyration_radius(coords)
 
     def load_dssp(self):
-        file = open("C:\\Users\\Rundead\\Omegaforl\\res1\\dssps.txt", "r")
+        file = open("C:\\Users\\42077\\Omegaforl\\res1\\dssps.txt", "r")
         linelist = file.readlines()
         file.close()
 

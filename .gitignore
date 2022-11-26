@@ -11,3 +11,5 @@ __pycache__/nicheSpace.cpython-310.pyc
 *.pyc
 *.pyc
 *.pyc
+.idea/misc.xml
+*.pyc
