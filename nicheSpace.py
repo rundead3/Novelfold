@@ -113,4 +113,4 @@ class nicheSpace:
         if not os.path.exists(directory):
             os.makedirs(directory)
         subprocess.run(
-            "omegafold "+config.get_archive_fasta_path(genNo)+directory+" --num_cycle 2", shell=True)
+            "omegafold "+config.get_archive_fasta_path(genNo)+" "+directory+" --num_cycle 2", shell=True)
