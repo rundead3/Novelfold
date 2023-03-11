@@ -114,7 +114,7 @@ def mutate(res1, res2):
 ## settings ##
 population = 20
 confidence_cutoff = 0
-chain_length = 144
+chain_length = 186
 generations = 100000
 
 
@@ -139,7 +139,7 @@ while genN < generations:
     print(map)
     map.print_info()
 
-    if genN % 25 == 0 and genN != 0:
+    if genN % 50 == 0 and genN != 0:
         map.write_archive_fastas(genN)
         map.fold_archive(genN)
 

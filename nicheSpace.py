@@ -28,8 +28,8 @@ class nicheSpace:
         #iterate and add elements of archive and fightclub
         for x in range(self.boxNo):
             for y in range(self.boxNo):
-                wtf = str(self.archive[x, y].__repr__()) + "|" + str(self.fightclub[x, y])
-                #wtf = self.archive[x, y].__repr__()
+                #wtf = str(self.archive[x, y].__repr__()) + "|" + str(self.fightclub[x, y])
+                wtf = self.archive[x, y].__repr__()
                 arena[x, y] = wtf
         return np.array2string(arena, separator=' ', formatter={'str_kind': lambda arena: arena})
 
@@ -87,7 +87,7 @@ class nicheSpace:
     def write_archive_fastas(self, genNo):
 
         "convert residues into fasta format"
-        fasta = open(config.get_archive_fasta_path(genNo)+".txt", "w")
+        fasta = open(config.get_archive_fasta_path(genNo), "w")
         x = 0
         y = 0
 

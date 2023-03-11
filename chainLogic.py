@@ -31,7 +31,7 @@ def get_gyration_radius(coords):
 class chainLogic:
 
     def __init__(self, i):
-        self.denseScore = None
+        self.gRadius = None
         self.confidence = None
         self.chainLength = None
         self.triplets = []
@@ -41,17 +41,17 @@ class chainLogic:
         self.secondaryStruct = self.load_dssp()
 
     def __str__(self):
-        msg = "Conf:" + str(self.confidence) + " Density:" + str(self.denseScore) + " secondary:" + str(
+        msg = "Conf:" + str(self.confidence) + " Density:" + str(self.gRadius) + " secondary:" + str(
             self.secondaryStruct) + " Lengh:" + str(self.chainLength)
         return msg
 
     def __repr__(self):
-        return str(int(self.confidence)) + "|" + str(int(self.denseScore))
+        return str(int(self.confidence)) + "|" + str(int(self.gRadius))
 
     def __gt__(self, other):
         if other == 0:
             return True
-        return self.get_fitness() < other.get_fitness()
+        return self.get_fitness() > other.get_fitness()
 
     def load_blobulator(self):
         csv_file = open(
@@ -97,7 +97,7 @@ class chainLogic:
 
                 ##self.denseScore = 1 / (get_bounding_sphere(coords) / math.pow(self.chainLength, 1/3))
 
-                self.denseScore = get_gyration_radius(coords)
+                self.gRadius = get_gyration_radius(coords)
 
     def load_dssp(self):
         file = open("C:\\Users\\42077\\Omegaforl\\res1\\dssps.txt", "r")
@@ -115,7 +115,7 @@ class chainLogic:
         return alphas / self.chainLength, betas / self.chainLength
 
     def get_fitness(self):
-        return self.denseScore
+        return self.confidence/self.gRadius
 
     def get_features(self):
         return self.secondaryStruct[0], self.secondaryStruct[1]
