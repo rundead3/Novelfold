@@ -15,6 +15,21 @@ def get_bounding_sphere(coords):
     return maxDist
 
 
+def get_start_end_distance(coords):
+    return math.dist(coords[0], coords[-1])
+
+
+def get_rmsd(chain1, chain2):
+    # get the coordinates of the two chains
+    coords1 = np.array([chain1.get_coord() for atom in chain1.get_atoms()])
+    coords2 = np.array([atom.get_coord() for atom in chain2.get_atoms()])
+
+    # get the rmsd
+    rmsd = np.sqrt(np.mean((coords1 - coords2) ** 2))
+
+    return rmsd
+
+
 def get_gyration_radius(coords):
     # get the center of mass
     center = np.mean(coords, axis=0)
@@ -55,7 +70,7 @@ class chainLogic:
 
     def load_blobulator(self):
         csv_file = open(
-            "C:\\Users\\42077\\Omegaforl\\blobulator-main\\Batch" + str(self.index) + "th.csv",
+            "C:\\Users\\Rundead\\Omegaforl\\blobulator-main\\Batch" + str(self.index) + "th.csv",
             "r")
         csv_list = csv_file.readlines()
         csv_file.close()
@@ -72,7 +87,7 @@ class chainLogic:
     def load_omegafold(self):
         parser = PDBParser()
         structure = parser.get_structure(str(self.index) + "th chain",
-                                         "C:\\Users\\42077\\Omegaforl\\res1\\" + str(self.index) + "th_chain.pdb")
+                                         "C:\\Users\\Rundead\\Omegaforl\\res1\\" + str(self.index) + "th_chain.pdb")
 
         for model in structure:
             for chain in model:
@@ -97,10 +112,11 @@ class chainLogic:
 
                 ##self.denseScore = 1 / (get_bounding_sphere(coords) / math.pow(self.chainLength, 1/3))
 
-                self.denseScore = get_gyration_radius(coords)
+                self.denseScore = get_gyration_radius(coords) * get_start_end_distance(coords)
+
 
     def load_dssp(self):
-        file = open("C:\\Users\\42077\\Omegaforl\\res1\\dssps.txt", "r")
+        file = open("C:\\Users\\Rundead\\Omegaforl\\res1\\dssps.txt", "r")
         linelist = file.readlines()
         file.close()
 

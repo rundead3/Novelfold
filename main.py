@@ -6,6 +6,8 @@ import triplets
 import config
 from chainLogic import chainLogic
 from nicheSpace import nicheSpace
+def clear_console():
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 def init_population(popSize, length):
     fasta = open(config.get_new_fastas_path(), "w")
@@ -31,7 +33,7 @@ def blobulate():
 ##def netsurf(fasta):
 ##    nsp3 = biolib.load('DTU/NetSurfP-3')
 ##    nsp3_results = nsp3.cli(args='-i' + str(fasta))
-##    nsp3_results.save_files("C:\\Users\\42077\\Omegafold\\netsurf")
+##    nsp3_results.save_files("C:\\Users\\Rundead\\Omegafold\\netsurf")
 
 def fold():
     "START OMEGAFOLD"
@@ -78,6 +80,8 @@ def new_population():
     fasta = open(config.get_new_fastas_path(), "w")
 
     for i in range(0, population):
+        print('get_random() called')
+
         fasta.write(">" + str(i) + "th_chain")
         fasta.write("\n")
 
@@ -112,10 +116,10 @@ def mutate(res1, res2):
 # MAIN # MAIN # MAIN
 
 ## settings ##
-population = 20
+population = 50
 confidence_cutoff = 0
-chain_length = 144
-generations = 100000
+chain_length = 150
+generations = 100000000000
 
 
 # init
@@ -142,5 +146,6 @@ while genN < generations:
     if genN % 25 == 0 and genN != 0:
         map.write_archive_fastas(genN)
         map.fold_archive(genN)
+        clear_console()
 
     print("----------------------------------", genN, "----------------------------------")

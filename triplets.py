@@ -11,6 +11,13 @@ def random_triplet():
         floor += amino
         index += 1
 
+def random_random_chain(length):
+    strSeq = ""
+    for i in range(0, length):
+        strSeq += str(random.choice(
+            ['A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V']))
+    return strSeq
+
 def random_chain(length):
     chain = ""
     for i in range(length):

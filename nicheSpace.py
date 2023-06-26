@@ -22,17 +22,15 @@ class nicheSpace:
         self.fightclub = np.zeros((self.boxNo, self.boxNo), int)
         self.clear_matrix()
 
-
     def __str__(self):
         arena = np.zeros((self.boxNo, self.boxNo), dtype=object)
-        #iterate and add elements of archive and fightclub
+        # iterate and add elements of archive and fightclub
         for x in range(self.boxNo):
             for y in range(self.boxNo):
-                wtf = str(self.archive[x, y].__repr__()) + "|" + str(self.fightclub[x, y])
-                #wtf = self.archive[x, y].__repr__()
+                # wtf = str(self.archive[x, y].__repr__()) + "|" + str(self.fightclub[x, y])
+                wtf = self.archive[x, y].__repr__()
                 arena[x, y] = wtf
         return np.array2string(arena, separator=' ', formatter={'str_kind': lambda arena: arena})
-
 
 
     def clear_matrix(self):
@@ -70,10 +68,14 @@ class nicheSpace:
 
     def get_random(self):
         choice = 0
+        print('get_random() called')
+
         while choice == 0:
+
             x = random.randrange(0, self.boxNo)
             y = random.randrange(0, self.boxNo)
             choice = self.archive[x, y]
+
         return choice
 
     def get_old(self):
@@ -113,4 +115,4 @@ class nicheSpace:
         if not os.path.exists(directory):
             os.makedirs(directory)
         subprocess.run(
-            "omegafold "+config.get_archive_fasta_path(genNo)+" "+directory+" --num_cycle 2", shell=True)
+            "omegafold "+config.get_archive_fasta_path(genNo)+".txt"+" "+directory+" --num_cycle 2", shell=True)
