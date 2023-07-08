@@ -1,7 +1,7 @@
 import os
 import random
 import subprocess
-
+import csv
 import numpy as np
 
 import triplets
@@ -21,6 +21,10 @@ class nicheSpace:
         self.boxNo = 8
         self.fightclub = np.zeros((self.boxNo, self.boxNo), int)
         self.clear_matrix()
+        with open(config.get_archivelog_path(), 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(['Index', 'Location', 'Fitness', 'Features'])  # Header row
+
 
     def __str__(self):
         arena = np.zeros((self.boxNo, self.boxNo), dtype=object)
@@ -38,6 +42,14 @@ class nicheSpace:
         self.archive = np.zeros((self.boxNo, self.boxNo), chainLogic)
         # self.fightclub = np.zeros((self.boxNo, self.boxNo), int)
 
+    def get_new_entries(self):
+        new_entries = np.setdiff1d(self.archive, self.old_archive)
+        with open(config.get_archivelog_path(), 'a', newline='') as file:
+            writer = csv.writer(file)
+            for entry in new_entries:
+                x, y = np.where(self.archive == entry)
+                writer.writerow([entry.get_index(), (str(x), str(y)), entry.get_fitness(), ','.join(map(str, entry.get_features()))])
+        return new_entries
     def adjust_range(self, newChains):
 
         for chain in newChains:
@@ -54,9 +66,9 @@ class nicheSpace:
         xi = 0
         yi = 0
         for x in np.linspace(self.minx, self.maxx, self.boxNo):
-            if feats[0] - x < (self.maxx-self.minx) / self.boxNo:
+            if feats[0] - x <= (self.maxx-self.minx) / self.boxNo:
                 for y in np.linspace(self.miny, self.maxy, self.boxNo):
-                    if feats[1] - y < (self.maxy - self.miny) / self.boxNo:
+                    if feats[1] - y <= (self.maxy - self.miny) / self.boxNo:
                         self.fightclub[xi, yi] += 1
                         if self.archive[xi, yi] < chain:
                             self.archive[xi, yi] = chain
@@ -68,7 +80,6 @@ class nicheSpace:
 
     def get_random(self):
         choice = 0
-        print('get_random() called')
 
         while choice == 0:
 

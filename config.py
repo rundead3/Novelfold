@@ -30,3 +30,6 @@ def get_cypred_input_path():
     return "C:\\Users\\Rundead\\path\\to\\input.fasta"  # Replace with the actual path
 def get_cypred_output_path():
     return "C:\\Users\\Rundead\\path\\to\\output.cypred"  # Replace with the actual path
+
+def get_archivelog_path():
+    return "C:\\Users\\Rundead\\Novelfold\\Archive\\log.csv"

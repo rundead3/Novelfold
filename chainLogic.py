@@ -1,7 +1,7 @@
 import numpy as np
 from Bio.PDB.PDBParser import PDBParser
 import math
-
+import pickle
 
 def get_bounding_sphere(coords):
     maxDist = 0
@@ -45,19 +45,22 @@ def get_gyration_radius(coords):
 
 class chainLogic:
 
-    def __init__(self, i):
+    def __init__(self, gi, i):
+        self.global_index = gi
         self.denseScore = None
         self.confidence = None
         self.chainLength = None
         self.triplets = []
         self.index = i
         # self.blobulation = self.load_blobulator()
+        self.sasa = self.load_sasa()
         self.load_omegafold()
         self.secondaryStruct = self.load_dssp()
 
+
     def __str__(self):
-        msg = "Conf:" + str(self.confidence) + " Density:" + str(self.denseScore) + " secondary:" + str(
-            self.secondaryStruct) + " Lengh:" + str(self.chainLength)
+        msg = "Conf:" + str(self.confidence) + " Fitness:" + str(self.get_fitness()) + " Secondary:" + str(
+            self.secondaryStruct) + " Length:" + str(self.chainLength)
         return msg
 
     def __repr__(self):
@@ -68,6 +71,10 @@ class chainLogic:
             return True
         return self.get_fitness() < other.get_fitness()
 
+    def __lt__(self, other):
+        if other == 0:
+            return True
+        return self.get_fitness() > other.get_fitness()
     def load_blobulator(self):
         csv_file = open(
             "C:\\Users\\Rundead\\Omegaforl\\blobulator-main\\Batch" + str(self.index) + "th.csv",
@@ -112,8 +119,8 @@ class chainLogic:
 
                 ##self.denseScore = 1 / (get_bounding_sphere(coords) / math.pow(self.chainLength, 1/3))
 
-                self.denseScore = get_gyration_radius(coords) * get_start_end_distance(coords)
-
+                #self.denseScore = get_gyration_radius(coords) * get_start_end_distance(coords)
+                self.denseScore = self.sasa
 
     def load_dssp(self):
         file = open("C:\\Users\\Rundead\\Omegaforl\\res1\\dssps.txt", "r")
@@ -130,6 +137,11 @@ class chainLogic:
                 betas += 1
         return alphas / self.chainLength, betas / self.chainLength
 
+    def load_sasa(self):
+        with open('sasa_values.pkl', 'rb') as f:
+            sasa_values = pickle.load(f)
+        return sasa_values[self.index]
+
     def get_fitness(self):
         return self.denseScore
 
@@ -142,3 +154,5 @@ class chainLogic:
     def survivable(self, cutoff):
         # return self.confidence > cutoff
         return True
+    def get_index(self):
+        return self.global_index

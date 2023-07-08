@@ -6,8 +6,13 @@ import triplets
 import config
 from chainLogic import chainLogic
 from nicheSpace import nicheSpace
+import freesasa
+import pickle
+
+
 def clear_console():
     os.system('cls' if os.name == 'nt' else 'clear')
+
 
 def init_population(popSize, length):
     fasta = open(config.get_new_fastas_path(), "w")
@@ -25,7 +30,7 @@ def init_population(popSize, length):
 def blobulate():
     """COMPUTE BLOBS"""
     subprocess.run(
-        "python compute_blobs.py --fasta "+config.get_new_fastas_path()+" --cutoff 0.4 --minBlob 4 --oname "+config.get_blobulator_path(),
+        "python compute_blobs.py --fasta " + config.get_new_fastas_path() + " --cutoff 0.4 --minBlob 4 --oname " + config.get_blobulator_path(),
         shell=True, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
 
 
@@ -38,7 +43,7 @@ def blobulate():
 def fold():
     "START OMEGAFOLD"
     os.chdir(config.get_omegafold_path())
-    subprocess.run("omegafold "+config.get_new_fastas_path()+" "+config.get_pdbs_path()+" --num_cycle 1",
+    subprocess.run("omegafold " + config.get_new_fastas_path() + " " + config.get_pdbs_path() + " --num_cycle 1",
                    shell=True)
     "END OMEGAFOLD"
 
@@ -46,17 +51,46 @@ def fold():
 def dssp():
     pdbs = ""
     for i in range(0, population):
-        pdbs += " "+config.get_pdbs_path() + str(i) + "th_chain.pdb"
-    output = " -o "+config.get_dssp_output_path()
-    subprocess.run("python "+config.get_dssp_path()+pdbs+output)
+        pdbs += " " + config.get_pdbs_path() + str(i) + "th_chain.pdb"
+    output = " -o " + config.get_dssp_output_path()
+    subprocess.run("python " + config.get_dssp_path() + pdbs + output)
 
+
+def sasa():
+    pdbs = []
+    for i in range(0, population):
+        pdbs.append(config.get_pdbs_path() + str(i) + "th_chain.pdb")
+    print(pdbs[0])
+    print(pdbs)
+    for pdb in pdbs:
+        structure = freesasa.Structure(pdb)
+        result = freesasa.calc(structure)
+        area_classes = freesasa.classifyResults(result, structure)
+
+        print("Total : %.2f A2" % result.totalArea())
+        for key in area_classes:
+            print(key, ": %.2f A2" % area_classes[key])
+
+
+def calculate_sasa():
+    pdbs = [config.get_pdbs_path() + str(i) + "th_chain.pdb" for i in range(population)]
+    sasa_values = []
+    for pdb in pdbs:
+        structure = freesasa.Structure(pdb)
+        result = freesasa.calc(structure)
+        total_area = result.totalArea()
+        sasa_values.append(total_area)
+    return sasa_values
 
 
 def next_gen():
     # Create individuals
+    global index_global
     newChainList = []
     for i in range(0, population):
-        newPeep = chainLogic(i)
+        newPeep = chainLogic(index_global, i)
+        index_global += 1
+        print(index_global)
         if newPeep.survivable(confidence_cutoff):
             newChainList.append(newPeep)
         else:
@@ -73,15 +107,13 @@ def next_gen():
         for chain in chainRow:
             if chain != 0:
                 map.add_entry(chain)
-
+    map.get_new_entries()
 
 def new_population():
     "convert residues into fasta format"
     fasta = open(config.get_new_fastas_path(), "w")
 
     for i in range(0, population):
-        print('get_random() called')
-
         fasta.write(">" + str(i) + "th_chain")
         fasta.write("\n")
 
@@ -116,26 +148,30 @@ def mutate(res1, res2):
 # MAIN # MAIN # MAIN
 
 ## settings ##
-population = 50
+population = 20
 confidence_cutoff = 0
-chain_length = 150
+chain_length = 64
 generations = 100000000000
-
 
 # init
 fitness = 0
 genN = 0
 sphereResolution = 0.4  # ratio of atoms measured
-
+index_global = 0
 init_population(population, chain_length)
 map = nicheSpace()
 
 while genN < generations:
-    #blobulate()
+    # blobulate()
     fold()
     dssp()
 
+    sasa_values = calculate_sasa()
+    with open('sasa_values.pkl', 'wb') as f:
+        pickle.dump(sasa_values, f)
+
     genN += 1
+
     next_gen()
 
     new_population()
