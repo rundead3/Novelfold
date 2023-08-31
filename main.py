@@ -8,6 +8,7 @@ from chainLogic import chainLogic
 from nicheSpace import nicheSpace
 import freesasa
 import pickle
+import math
 
 
 def clear_console():
@@ -56,6 +57,75 @@ def dssp():
     subprocess.run("python " + config.get_dssp_path() + pdbs + output)
 
 
+def normalize_to_probabilities(data):
+    """Normalize free energy differences to positive scores between 0 and 1."""
+
+    # Convert free energy differences to positive scores
+    score_data = {key: math.exp(-value) for key, value in data.items()}
+
+    # Normalize scores for each index
+    index_data = {}
+    for key, score in score_data.items():
+        index = key[:-1]
+        if index not in index_data:
+            index_data[index] = 0
+        index_data[index] += score
+
+    normalized_data = {}
+    for key, score in score_data.items():
+        index = key[:-1]
+        normalized_data[key] = score / index_data[index]
+
+    return normalized_data
+
+
+def convert_to_normalized_probabilities(input_file, output_file):
+    """Convert the values in the input file to normalized probabilities and save to output file."""
+
+    data = {}
+    with open(input_file, 'r') as file:
+        for line in file:
+            parts = line.strip().split()
+            key = parts[0]
+            value = float(parts[1])
+            data[key] = value
+
+    normalized_data = normalize_to_probabilities(data)
+
+    with open(output_file, 'w') as file:
+        for key, value in normalized_data.items():
+            file.write(f"{key} {value:.4f}\n")
+
+
+def pythia():
+    batch_file_path = r"C:\Users\Rundead\Omegaforl\res1\new.bat"
+    subprocess.run(batch_file_path, shell=True)
+    # Run the convert to normalized probabilities function on all the files just created
+    for i in range(0, population):
+        input_file = r"C:\Users\Rundead\Omegaforl\res1\\" + str(i) + "th_chain_pred_mask.txt"
+        output_file = r"C:\Users\Rundead\Omegaforl\res1\\" + str(i) + "th_chain.txt"
+        convert_to_normalized_probabilities(input_file, output_file)
+
+
+def foldx():
+    pdbsi = []
+    for i in range(0, population):
+        pdbsi.append(str(i) + "th_chain.pdb")
+    os.chdir(config.get_pdbs_path())
+    for i in pdbsi:
+        result = subprocess.run("Foldx_5.exe -cStability --pdb=" + str(i), shell=True, capture_output=True, text=True)
+        # Get the captured output
+        output = result.stdout
+
+        # Process the output to extract the desired information
+        # Here's an example to extract the stability value
+        start_index = output.find("Total          = ")
+        end_index = output.find("\n", start_index)
+        stability = output[start_index + len("Total          = "):end_index]
+
+        print("Stability:", stability)
+
+
 def sasa():
     pdbs = []
     for i in range(0, population):
@@ -90,7 +160,6 @@ def next_gen():
     for i in range(0, population):
         newPeep = chainLogic(index_global, i)
         index_global += 1
-        print(index_global)
         if newPeep.survivable(confidence_cutoff):
             newChainList.append(newPeep)
         else:
@@ -109,6 +178,7 @@ def next_gen():
                 map.add_entry(chain)
     map.get_new_entries()
 
+
 def new_population():
     "convert residues into fasta format"
     fasta = open(config.get_new_fastas_path(), "w")
@@ -118,7 +188,8 @@ def new_population():
         fasta.write("\n")
 
         """mutation of residues"""
-        fasta.write(str(mutate(triplets.tri_to_fasta(map.get_random()), triplets.tri_to_fasta(map.get_random()))))
+
+        fasta.write(str(mutate(triplets.tri_to_fasta_py(map.get_random()), triplets.tri_to_fasta_py(map.get_random()))))
 
         fasta.write("\n")
 
@@ -126,8 +197,8 @@ def new_population():
 
 
 def mutate(res1, res2):
-    crossChance = 0.1
-    mutChance = 0.05
+    crossChance = 0.05
+    mutChance = 0.0
     read1 = True
     resMut = ""
     for i in range(0, len(res1)):
@@ -148,15 +219,15 @@ def mutate(res1, res2):
 # MAIN # MAIN # MAIN
 
 ## settings ##
-population = 20
+population = 8
 confidence_cutoff = 0
-chain_length = 64
+chain_length = 100
 generations = 100000000000
 
 # init
 fitness = 0
 genN = 0
-sphereResolution = 0.4  # ratio of atoms measured
+
 index_global = 0
 init_population(population, chain_length)
 map = nicheSpace()
@@ -164,8 +235,9 @@ map = nicheSpace()
 while genN < generations:
     # blobulate()
     fold()
+    pythia()
     dssp()
-
+    # foldx()
     sasa_values = calculate_sasa()
     with open('sasa_values.pkl', 'wb') as f:
         pickle.dump(sasa_values, f)

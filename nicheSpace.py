@@ -23,7 +23,7 @@ class nicheSpace:
         self.clear_matrix()
         with open(config.get_archivelog_path(), 'w', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(['Index', 'Location', 'Fitness', 'Features'])  # Header row
+            writer.writerow(['Index', 'Location', 'Fitness', 'Features', 'GyrationR', 'EndtoEnd', 'Confidence', 'SASA'])
 
 
     def __str__(self):
@@ -48,7 +48,7 @@ class nicheSpace:
             writer = csv.writer(file)
             for entry in new_entries:
                 x, y = np.where(self.archive == entry)
-                writer.writerow([entry.get_index(), (str(x), str(y)), entry.get_fitness(), ','.join(map(str, entry.get_features()))])
+                writer.writerow([entry.get_index(), (str(x), str(y)), entry.get_fitness(), ','.join(map(str, entry.get_features())),entry.gyration_radius, entry.endtoend, entry.confidence, entry.sasa])
         return new_entries
     def adjust_range(self, newChains):
 
