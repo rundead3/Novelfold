@@ -30,5 +30,5 @@ BioPython
 OmegaFold (external tool for genotype-to-phenotype transformation)
 DSSP (external tool for secondary structure determination)
 FreeSASA (external tool for Solvent Accessible Surface Area (SASA) calculation)
-Please ensure these are installed and correctly configured before running the program.
+Pythia
 
