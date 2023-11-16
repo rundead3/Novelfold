@@ -108,7 +108,7 @@ def tri_to_fasta_py(res):
         chosen_residue = amino_acid_map[i]
 
         # 95% of the time, decide based on mutation data
-        if random.random() <= 0.95:
+        if random.random() <= 0.1:
             mutation_info = mutation_data[idx] if idx < len(mutation_data) else {}
 
             # Decide the mutated residue probabilistically

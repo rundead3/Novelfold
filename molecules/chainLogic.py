@@ -56,14 +56,13 @@ class chainLogic:
         self.endtoend = None
         self.confidence = None
         self.chainLength = None
-        self.mutations = None
         self.triplets = []
         self.index = i
         # self.blobulation = self.load_blobulator()
         self.sasa = self.load_sasa()
         self.load_omegafold()
         self.secondaryStruct = self.load_dssp()
-
+        self.mutations = None
 
     def __str__(self):
         msg = "Conf:" + str(self.confidence) + " Fitness:" + str(self.get_fitness()) + " Secondary:" + str(
@@ -76,15 +75,11 @@ class chainLogic:
     def __gt__(self, other):
         if other == 0:
             return True
-        if self.get_fitness() == other.get_fitness():
-            return False
         return self.get_fitness() > other.get_fitness()
 
     def __lt__(self, other):
         if other == 0:
             return True
-        if self.get_fitness() == other.get_fitness():
-            return False
         return self.get_fitness() < other.get_fitness()
 
     def load_blobulator(self):
@@ -105,20 +100,19 @@ class chainLogic:
 
     def load_omegafold(self):
         # 1. Construct the filename for the mutation data
-        mutation_file_path = "C:\\Users\\Rundead\\Omegaforl\\res1\\" + str(self.index) + "th_chain.txt"
+          mutation_file_path = "C:\\Users\\Rundead\\Omegaforl\\res1\\" + str(self.index) + "th_chain.txt"
 
         # 2. Parse the mutation rate file
         mutation_rates = {}
         with open(mutation_file_path, 'r') as file:
             for line in file:
                 parts = line.strip().split()
-                # Extracting residue position and mutation type
-                position = int(parts[0][1])
-                mutation_type = parts[0][2:]
-
+                # Extracting residue position as an integer
+                position = int(parts[0][1:-1])
                 if position not in mutation_rates:
                     mutation_rates[position] = {}
                 mutation_rates[position][mutation_type] = float(parts[1])
+
 
         parser = PDBParser()
         structure = parser.get_structure(str(self.index) + "th chain",

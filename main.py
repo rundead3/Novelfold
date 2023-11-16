@@ -56,12 +56,32 @@ def dssp():
     output = " -o " + config.get_dssp_output_path()
     subprocess.run("python " + config.get_dssp_path() + pdbs + output)
 
+def normalize_to_probabilities_gauss(data):
+    """Normalize values to probabilities such that values closer to 0 have higher probability."""
 
-def normalize_to_probabilities(data):
+    # Convert values to Gaussian based scores
+    score_data = {key: math.exp(-value**2) for key, value in data.items()}
+
+    # Normalize scores for each index
+    index_data = {}
+    for key, score in score_data.items():
+        index = key[:-1]
+        if index not in index_data:
+            index_data[index] = 0
+        index_data[index] += score
+
+    normalized_data = {}
+    for key, score in score_data.items():
+        index = key[:-1]
+        normalized_data[key] = score / index_data[index]
+
+    return normalized_data
+
+def normalize_to_probabilities_exp(data):
     """Normalize free energy differences to positive scores between 0 and 1."""
 
     # Convert free energy differences to positive scores
-    score_data = {key: math.exp(-value) for key, value in data.items()}
+    score_data = {key: math.exp(value) for key, value in data.items()}
 
     # Normalize scores for each index
     index_data = {}
@@ -90,7 +110,7 @@ def convert_to_normalized_probabilities(input_file, output_file):
             value = float(parts[1])
             data[key] = value
 
-    normalized_data = normalize_to_probabilities(data)
+    normalized_data = normalize_to_probabilities_gauss(data)
 
     with open(output_file, 'w') as file:
         for key, value in normalized_data.items():

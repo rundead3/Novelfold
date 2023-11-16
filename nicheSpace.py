@@ -110,7 +110,7 @@ class nicheSpace:
                     fasta.write(">" + str(x) + "_" + str(y) + "_FDB_" + str(int(chain.get_fitness())) + "_" + str(int(100*chain.get_features()[0])) + "_" + str(int(100*chain.get_features()[1])))
                     fasta.write("\n")
 
-                    """mutation of residues"""
+                    """tri to fasta residues"""
                     fasta.write("".join(triplets.tri_to_fasta(chain)))
 
                     fasta.write("\n")
